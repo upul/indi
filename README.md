@@ -1,4 +1,3 @@
-# ML-Workbench
+# ML Workbench
 ---
-
-### This repository contains a collection of Machine Leraning algorithms implemented in Python, Numpy/Scipy and Pandas
+This repository contains a collection of machine learning algorithms which I think every Machine Learning engineer should be familiar with. 
