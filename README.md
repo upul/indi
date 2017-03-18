@@ -1,5 +1,5 @@
 # ML Workbench
----
+
 This repository contains a collection of machine learning algorithms which I think every Machine Learning engineer should be familiar with.
 
 Following Quora question was the motivation for me to work on this repository. 
