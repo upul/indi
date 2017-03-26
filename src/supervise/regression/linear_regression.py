@@ -33,16 +33,18 @@ class LinearRegression:
         :param y_train:
         :return:
         """
-        loss_function = mean_squared
-        if self.regularization == Regularization.L2:
-            loss_function = mean_squared_l2_loss
-        elif self.regularization == Regularization.L2:
-            loss_function = mean_squared_l1_loss
-
         X_train = np.hstack((np.ones((X_train.shape[0], 1)), X_train))
-        self.weight, cost = solver.sgd(loss_function, X_train, y_train,
-                                       self.learning_rate, self.max_iter,
-                                       self.verbose)
+
+        if self.regularization is None or self.regularization.L2:
+            loss_function = mean_squared
+            if self.regularization == Regularization.L2:
+                loss_function = mean_squared_l2_loss
+            self.weight, cost = solver.sgd(loss_function, X_train, y_train,
+                                           self.learning_rate, self.max_iter,
+                                           self.verbose)
+        elif self.regularization == Regularization.L2:
+            self.weight = solver.lasso_coordinate_descent(X_train, y_train, )
+
 
     def predict(self, X_test):
         """
@@ -88,3 +90,5 @@ if __name__ == '__main__':
         plt.scatter(diabetes_X_test, diabetes_y_test, color='#dd1c77')
         plt.plot(diabetes_X_test, y_predict, color='#c994c7', linewidth=2)
         plt.show()
+
+
