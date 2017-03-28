@@ -1,5 +1,5 @@
 from enum import Enum
 
-class Regularization(Enum):
+class RegularizationType(Enum):
     L1 = 1,
     L2 = 2

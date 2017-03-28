@@ -1,1 +1,1 @@
-from .regularization import Regularization
+from .regularizationtype import RegularizationType
