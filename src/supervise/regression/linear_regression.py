@@ -10,8 +10,8 @@ class LinearRegression:
 
     """
 
-    def __init__(self, learning_rate=0.01, regularization_type=None, regularization=0.001,
-                 max_iter=100, tolerance=0.00001, verbose=False):
+    def __init__(self, learning_rate=0.01, regularization_type=None, regularization=0.00001,
+                 max_iter=100, tolerance=1e5, verbose=False):
         """
 
         :param learning_rate:
@@ -35,7 +35,7 @@ class LinearRegression:
         :param y_train:
         :return:
         """
-        X_train = np.hstack((np.ones((X_train.shape[0], 1)), X_train))
+        #X_train = np.hstack((np.ones((X_train.shape[0], 1)), X_train))
 
         if self.regularization_type is None:
             loss_function = mean_squared
@@ -45,8 +45,7 @@ class LinearRegression:
                                            self.learning_rate, self.max_iter,
                                            self.verbose)
         elif self.regularization_type == RegularizationType.L1:
-            self.weight = solver.lasso_coordinate_descent(X_train, y_train,
-                                                          self.regularization_type, self.tolerance)
+            self.weight = solver.lasso_coordinate_descent(X_train, y_train, self.tolerance)
 
 
     def predict(self, X_test):
@@ -64,7 +63,7 @@ class LinearRegression:
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
-    import seaborn as sbn;
+    #import seaborn as sbn;
     from sklearn import datasets
 
     # # Load the diabetes dataset
@@ -97,8 +96,11 @@ if __name__ == '__main__':
     #     plt.show()
 
     from sklearn.datasets.samples_generator import make_regression
+    from sklearn.linear_model import Lasso
 
-    x_lasso, y_lasso = make_regression(n_samples=200, n_features=5000, random_state=0)
+    x_lasso, y_lasso = make_regression(n_samples=200, n_features=10, random_state=0)
+    intercept = np.ones((x_lasso.shape[0], 1))
+    x_lasso = np.column_stack((intercept, x_lasso))
 
     #x_lasso = np.array([[0,0], [1, 1], [2, 2]])
     #print(x_lasso)
@@ -106,10 +108,16 @@ if __name__ == '__main__':
     #print(x_lasso)
     #y_lasso = np.array([0, 1, 2])
 
-    lr = LinearRegression(learning_rate=0.01, max_iter=50, regularization_type=RegularizationType.L1)
+    lr = LinearRegression(learning_rate=0.0001, max_iter=0, regularization_type=RegularizationType.L1)
     lr.fit(x_lasso, y_lasso)
     print(np.count_nonzero(lr.weight))
-    print(lr.weight.shape)
+    print(lr.weight)
+    #print(np.count_nonzero(lr.weight))
+
+    #lasso = Lasso()
+    #lasso.fit(x_lasso, y_lasso)
+    #print('done')
+    #print(np.count_nonzero(lasso.coef_));
 
 
 
