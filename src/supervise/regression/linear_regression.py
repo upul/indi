@@ -141,7 +141,8 @@ if __name__ == '__main__':
                           regularization_type=RegularizationType.L2,
                           regularization=1e-8,
                           fit_intercept=True,
-                          normalize=True)
+                          normalize=True,
+                          verbose=False)
     lr.fit(x_lasso, y_lasso)
     print(np.count_nonzero(lr.weight))
     print(lr.weight)
