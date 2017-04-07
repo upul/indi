@@ -1,4 +1,5 @@
 from src.common.regularizationtype import RegularizationType
+from src.exceptions.modelbuilding import HyperParameterException
 from src.solvers import solver
 from src.solvers.loss_functions import mean_squared, mean_squared_l2_loss
 
@@ -13,7 +14,7 @@ class LinearRegression:
                  regularization_type=None,
                  regularization=1e-3,
                  max_iter=1e2,
-                 tolerance=1e5,
+                 tolerance=1e-5,
                  fit_intercept=True,
                  normalize=True,
                  verbose=False):
@@ -57,6 +58,7 @@ class LinearRegression:
             self.weight, cost = solver.sgd(loss_function, X_train, y_train,
                                            self.learning_rate, self.max_iter,
                                            self.regularization,
+                                           self.tolerance,
                                            self.verbose)
         elif self.regularization_type == RegularizationType.L1:
             self.weight = solver.lasso_coordinate_descent(X_train,
@@ -64,8 +66,9 @@ class LinearRegression:
                                                           self.regularization,
                                                           self.tolerance)
         else:
-            # exception
-            pass
+            raise HyperParameterException('regularization_type: {} '
+                                          'is not applicable for Linear Regression'.format
+                                          (self.regularization_type))
 
     def predict(self, X_test):
         """
@@ -81,11 +84,13 @@ class LinearRegression:
         X_test = np.hstack((np.ones((X_test.shape[0], 1)), X_test))
         return np.dot(X_test, self.weight)
 
-    def _fit_intercept(self, data):
+    @staticmethod
+    def _fit_intercept(data):
         intercept = np.ones((data.shape[0], 1))
         return np.column_stack((intercept, data))
 
-    def _normalize_features(self, features):
+    @staticmethod
+    def _normalize_features(features):
         norms = np.linalg.norm(features, axis=0)
         normalized_features = features / norms
         return normalized_features, norms
@@ -136,13 +141,14 @@ if __name__ == '__main__':
     # print(x_lasso)
     # y_lasso = np.array([0, 1, 2])
 
-    lr = LinearRegression(learning_rate=0.05,
+    lr = LinearRegression(learning_rate=0.1,
                           max_iter=100000,
                           regularization_type=RegularizationType.L2,
-                          regularization=1e-8,
+                          regularization=0,
                           fit_intercept=True,
                           normalize=True,
-                          verbose=False)
+                          tolerance=1e-5,
+                          verbose=True)
     lr.fit(x_lasso, y_lasso)
     print(np.count_nonzero(lr.weight))
     print(lr.weight)

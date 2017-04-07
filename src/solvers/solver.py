@@ -1,11 +1,16 @@
 import numpy as np
 
 
-def sgd(cost_func, X, y, learning_rate=0.01, max_iter=100,
-        regularization=None, verbose=False):
+def sgd(cost_func, X, y, learning_rate=0.01,
+        max_iter=100,
+        regularization=None,
+        tolerance=1e-4,
+        verbose=False):
     weights = np.ones(X.shape[1])
     cost = 0.0
-    for i in range(max_iter):
+    grad_cost = 1e100
+    iteration = 0
+    while True:
         if regularization is None:
             cost, grad_cost = cost_func(weights, X, y)
         else:
@@ -13,6 +18,15 @@ def sgd(cost_func, X, y, learning_rate=0.01, max_iter=100,
         weights -= (learning_rate * grad_cost)
         if verbose:
             print('cost: {}'.format(cost))
+        if iteration >= max_iter:
+            break
+        if np.linalg.norm(grad_cost) < tolerance:
+            break
+        iteration += 1
+
+    if verbose:
+        print('Optimization completed: number of iterations: {}, Norm of gradient of the cost: {}'.
+              format(iteration, np.linalg.norm(grad_cost)))
     return weights, cost
 
 
