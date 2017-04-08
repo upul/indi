@@ -1,9 +1,13 @@
 import numpy as np
 
+from indi.common import RegularizationType
+from indi.exceptions.modelbuilding import HyperParameterException
+
 
 def sgd(cost_func, X, y, learning_rate=0.01,
         max_iter=100,
-        regularization=None,
+        regularization=1e-2,
+        regularization_type = None,
         tolerance=1e-4,
         verbose=False):
     weights = np.ones(X.shape[1])
@@ -11,10 +15,14 @@ def sgd(cost_func, X, y, learning_rate=0.01,
     grad_cost = 1e100
     iteration = 0
     while True:
-        if regularization is None:
+        if regularization_type is None:
             cost, grad_cost = cost_func(weights, X, y)
-        else:
+        elif regularization_type == RegularizationType.L2:
             cost, grad_cost = cost_func(weights, X, y, regularization)
+        else:
+            raise HyperParameterException('regularization_type: {} '
+                                          'is not applicable for Linear Regression'.format
+                                          (regularization_type))
         weights -= (learning_rate * grad_cost)
         if verbose:
             if iteration < 10 or iteration % 1000 == 0:

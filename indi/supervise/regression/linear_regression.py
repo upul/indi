@@ -59,6 +59,7 @@ class LinearRegression:
             self.weight, cost = solver.sgd(loss_function, X_train, y_train,
                                            self.learning_rate, self.max_iter,
                                            self.regularization,
+                                           self.regularization_type,
                                            self.tolerance,
                                            self.verbose)
         elif self.regularization_type == RegularizationType.L1:
@@ -139,13 +140,13 @@ if __name__ == '__main__':
     # x_lasso = np.array([[0,0], [1, 1], [2, 2]])
     # print(x_lasso)
     # x_lasso, _ = normalize_features(x_lasso)
-    # print(x_lasso)
+    # print(x_lasso)o
     # y_lasso = np.array([0, 1, 2])
 
     lr = LinearRegression(learning_rate=0.1,
                           max_iter=100000,
                           regularization_type=RegularizationType.L2,
-                          regularization=0,
+                          regularization=1e-1,
                           fit_intercept=True,
                           normalize=True,
                           tolerance=1e-5,
