@@ -1,2 +1,0 @@
-class HyperParameterException(Exception):
-    pass

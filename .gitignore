@@ -1,5 +1,6 @@
 build/
 dist/
+.idea
 indi.egg-info/
 indi/common/__pycache__
 indi/exceptions/__pycache__
