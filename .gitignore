@@ -8,3 +8,5 @@ indi/metrics/__pycache__
 indi/solvers/__pycache__
 indi/supervise/classification/__pycache__
 ndi/supervise/regression/__pycache__
+indi/test/__pycache__
+requirements.txt
