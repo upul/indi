@@ -1,12 +1,10 @@
+*.pyc
+*.so
+*.pyd
+*~
+
 build/
 dist/
 .idea
 indi.egg-info/
-indi/common/__pycache__/*.pyc
-indi/exceptions/__pycache__/*.pyc
-indi/metrics/__pycache__/*.pyc
-indi/solvers/__pycache__/*.pyc
-indi/supervise/classification/__pycache__/*.pyc
-ndi/supervise/regression/__pycache__/*.pyc
-indi/test/__pycache__/*.pyc
 requirements.txt
