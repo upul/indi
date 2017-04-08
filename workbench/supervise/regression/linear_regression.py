@@ -1,7 +1,8 @@
-from src.common.regularizationtype import RegularizationType
-from src.exceptions.modelbuilding import HyperParameterException
-from src.solvers import solver
-from src.solvers.loss_functions import mean_squared, mean_squared_l2_loss
+import numpy as np
+from workbench.common.regularizationtype import RegularizationType
+from workbench.exceptions.modelbuilding import HyperParameterException
+from workbench.solvers import solver
+from workbench.solvers.loss_functions import mean_squared, mean_squared_l2_loss
 
 
 class LinearRegression:

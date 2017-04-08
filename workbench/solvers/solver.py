@@ -17,7 +17,8 @@ def sgd(cost_func, X, y, learning_rate=0.01,
             cost, grad_cost = cost_func(weights, X, y, regularization)
         weights -= (learning_rate * grad_cost)
         if verbose:
-            print('cost: {}'.format(cost))
+            if iteration < 10 or iteration % 1000 == 0:
+                print('iteration: {:10d}\t\tcost: {:1.4e}'.format(iteration, cost))
         if iteration >= max_iter:
             break
         if np.linalg.norm(grad_cost) < tolerance:
@@ -25,7 +26,7 @@ def sgd(cost_func, X, y, learning_rate=0.01,
         iteration += 1
 
     if verbose:
-        print('Optimization completed: number of iterations: {}, Norm of gradient of the cost: {}'.
+        print('\nOptimization completed: number of iterations: {}, Norm of gradient of the cost: {}\n'.
               format(iteration, np.linalg.norm(grad_cost)))
     return weights, cost
 
@@ -62,10 +63,3 @@ def _lasso_coordinate_descent_step(i, feature_matrix, output, weights, l1_penalt
 def _predict_output(feature_matrix, weights):
     predictions = np.dot(feature_matrix, weights)
     return predictions
-
-# if __name__ == '__main__':
-#     import math
-#
-#     print(_lasso_coordinate_descent_step(1, np.array([[3. / math.sqrt(13), 1. / math.sqrt(10)],
-#                                                [2. / math.sqrt(13), 3. / math.sqrt(10)]]), np.array([1., 1.]),
-#                                   np.array([1., 4.]), 0.1))
