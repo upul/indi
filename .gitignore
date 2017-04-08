@@ -1,0 +1,9 @@
+build/
+dist/
+indi.egg-info/
+indi/common/__pycache__
+indi/exceptions/__pycache__
+indi/metrics/__pycache__
+indi/solvers/__pycache__
+indi/supervise/classification/__pycache__
+ndi/supervise/regression/__pycache__
