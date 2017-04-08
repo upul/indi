@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     from sklearn.datasets.samples_generator import make_regression
 
-    x_lasso, y_lasso = make_regression(n_samples=200, n_features=10, random_state=0)
+    x_lasso, y_lasso = make_regression(n_samples=2000, n_features=50, random_state=0)
     # intercept = np.ones((x_lasso.shape[0], 1))
     # x_lasso = np.column_stack((intercept, x_lasso))
 
@@ -143,10 +143,10 @@ if __name__ == '__main__':
     # print(x_lasso)o
     # y_lasso = np.array([0, 1, 2])
 
-    lr = LinearRegression(learning_rate=0.1,
-                          max_iter=100000,
+    lr = LinearRegression(learning_rate=0.02,
+                          max_iter=200000,
                           regularization_type=RegularizationType.L2,
-                          regularization=1e-1,
+                          regularization=1e-3,
                           fit_intercept=True,
                           normalize=True,
                           tolerance=1e-5,

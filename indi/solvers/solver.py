@@ -7,7 +7,7 @@ from indi.exceptions.modelbuilding import HyperParameterException
 def sgd(cost_func, X, y, learning_rate=0.01,
         max_iter=100,
         regularization=1e-2,
-        regularization_type = None,
+        regularization_type=None,
         tolerance=1e-4,
         verbose=False):
     weights = np.ones(X.shape[1])
