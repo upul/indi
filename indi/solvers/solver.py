@@ -10,10 +10,10 @@ def sgd(cost_func, X, y, learning_rate=0.01,
         regularization_type=None,
         tolerance=1e-4,
         verbose=False):
-    weights = np.ones(X.shape[1])
+    weights = np.zeros(X.shape[1])
     cost = 0.0
     grad_cost = 1e100
-    iteration = 0
+    iteration = 1
     while True:
         if regularization_type is None:
             cost, grad_cost = cost_func(weights, X, y)
@@ -25,8 +25,13 @@ def sgd(cost_func, X, y, learning_rate=0.01,
                                           (regularization_type))
         weights -= (learning_rate * grad_cost)
         if verbose:
-            if iteration < 10 or iteration % 1000 == 0:
+            if (iteration <= 10) or \
+                    (iteration <= 100 and iteration % 10 == 0) or \
+                    (iteration <= 1000 and iteration % 100 == 0) or \
+                    (iteration <= 10000 and iteration % 1000 == 0) or \
+                    (iteration <= 100000 and iteration % 10000 == 0):
                 print('iteration: {:10d}\t\tcost: {:1.4e}'.format(iteration, cost))
+
         if iteration >= max_iter:
             break
         if np.linalg.norm(grad_cost) < tolerance:

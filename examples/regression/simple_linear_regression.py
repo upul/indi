@@ -1,0 +1,1 @@
+from indi.supervised.regression.linear_regression import LinearRegression
