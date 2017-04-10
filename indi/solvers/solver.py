@@ -12,8 +12,6 @@ def sgd(cost_func, X, y,
         tolerance=1e-4,
         verbose=False):
     weights = np.zeros(X.shape[1])
-    #cost = 0.0
-    #grad_cost = 1e100
     iteration = 1
     while True:
         if regularization_type is None:

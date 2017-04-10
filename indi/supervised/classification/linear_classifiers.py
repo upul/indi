@@ -90,18 +90,18 @@ if __name__ == '__main__':
     #sns.set(color_codes=True)
 
     #from sklearn.datasets.samples_generator import make_blobs
-    n_samples = 1000
+    n_samples = 2000
     #from sklearn.datasets.samples_generator import make_blobs
     #import matplotlib.pyplot as plt
 
     X, y = make_blobs(n_samples=n_samples, centers=2, n_features=2, \
-    cluster_std=0.5, random_state=5555)
+    cluster_std=0.65, random_state=1788)
 
     _, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(14, 6))
     ax1.scatter(X[:, 0], X[:, 1], c=y, alpha=0.5, edgecolors='none', s=45, cmap=plt.cm.Spectral)
 
     logistic = LogisticRegression(learning_rate=0.3,
-                          max_iter=10000,
+                          max_iter=1250,
                           regularization_type=None,
                           regularization=1e-3,
                           fit_intercept=True,
