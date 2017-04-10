@@ -28,7 +28,8 @@ def sgd(cost_func, X, y,
                     (iteration <= 100 and iteration % 10 == 0) or \
                     (iteration <= 1000 and iteration % 100 == 0) or \
                     (iteration <= 10000 and iteration % 1000 == 0) or \
-                    (iteration <= 100000 and iteration % 10000 == 0):
+                    (iteration <= 100000 and iteration % 10000 == 0) or \
+                    (iteration > 100000 and iteration % 50000 == 0):
                 print('iteration: {:10d}\t\tcost: {:1.4e}'.format(iteration, cost))
 
         if iteration >= max_iter:
@@ -59,8 +60,8 @@ def lasso_coordinate_descent(X, y, regularization=1e3, tolerance=1e-3):
 
 def _lasso_coordinate_descent_step(i, feature_matrix, output, weights, l1_penalty):
     weight_without_i = weights[np.arange(weights.shape[0]) != i]
-    feature_matrix_weightout_i = feature_matrix[:, np.arange(feature_matrix.shape[1]) != i]
-    prediction = _predict_output(feature_matrix_weightout_i, weight_without_i)
+    feature_matrix_without_i = feature_matrix[:, np.arange(feature_matrix.shape[1]) != i]
+    prediction = _predict_output(feature_matrix_without_i, weight_without_i)
     ro_i = np.dot(feature_matrix[:, i], (output - prediction))
 
     if ro_i < -l1_penalty / 2.0:
