@@ -59,9 +59,8 @@ class LogisticRegression:
         if self.normalize and self.norm_vector is not None:
             X_test = X_test / self.norm_vector
 
-        probabilities = sigmoid(np.dot(X_test, self.weight))
-        return probabilities, probabilities > cutoff
-
+        proba = sigmoid(np.dot(X_test, self.weight))
+        return proba, proba > cutoff
 
     @staticmethod
     def _fit_intercept(data):
