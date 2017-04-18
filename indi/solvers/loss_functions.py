@@ -20,7 +20,7 @@ def mean_squared_l2_loss(weight, X_train, y_train, regularization=1e-3):
 
 def logistic_loss(weights, features, response, regularization=None):
     num_of_samples = features.shape[0]
-    cost = logistic_cost(weights, features, response) / num_of_samples
+    cost = logistic_cost(weights, features, response, regularization) / num_of_samples
     diff = sigmoid(np.dot(features, weights)) - response
     grad_cost = np.dot(np.transpose(features), diff)
     if regularization is not None:
