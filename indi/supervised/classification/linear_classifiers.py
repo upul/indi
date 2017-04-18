@@ -36,7 +36,7 @@ class LogisticRegression:
         if self.normalize:
             X_train, self.norm_vector = self._normalize_features(X_train)
 
-        if self.regularization_type is None:
+        if (self.regularization_type is None) or (self.regularization_type == RegularizationType.L2):
             self.weight, cost = solver.sgd(logistic_loss,
                                            X_train, y_train,
                                            self.learning_rate, self.max_iter,
@@ -45,8 +45,6 @@ class LogisticRegression:
                                            self.tolerance,
                                            self.verbose
                                            )
-        elif self.regularization_type == RegularizationType.L2:
-            pass
         else:
             raise HyperParameterException('regularization_type: {} '
                                           'is not applicable for Logistic Regression'.format
