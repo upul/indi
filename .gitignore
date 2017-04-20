@@ -7,4 +7,4 @@ build/
 dist/
 .idea
 indi.egg-info/
-requirements.txt
+
