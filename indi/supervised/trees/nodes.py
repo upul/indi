@@ -10,7 +10,7 @@ class Node(object):
         self.id = id
 
     def get_id(self):
-        return self.id
+        return str(self.id)
 
     def set_description(self, description):
         self.description = description
@@ -31,6 +31,14 @@ class Leaf(Node):
     def predict_probability(self):
         return np.bincount(self.values) / self.values.shape[0]
 
+    def get_description(self):
+        probs = self.predict_probability()
+        desc = ''
+        for i in range(probs.shape[0]):
+            desc += 'class: {}  prob: {} \n'.format(i, probs[i])
+        desc += 'samples: {}\n'.format(self.values.shape[0])
+        return desc
+
 
 class Internal(Node):
     def __init__(self, dim, threshold, left_child, right_child, id=None, description=None):
@@ -38,3 +46,4 @@ class Internal(Node):
         self.dim = dim
         self.threshold = threshold
         self.left_child = left_child
+        self.right_child = right_child

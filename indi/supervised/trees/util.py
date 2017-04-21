@@ -6,7 +6,7 @@ def entropy(x):
     return -np.sum(x * np.log(x))
 
 
-def information_gain(self, y, y_left, y_right):
+def information_gain(y, y_left, y_right):
     n = y.shape[0]
     n_l = y_left.shape[0]
     if n_l == 0:
@@ -20,5 +20,5 @@ def information_gain(self, y, y_left, y_right):
     else:
         H_r = entropy(y_right.mean(axis=0))
 
-        H = self._entropy(y.mean(axis=0))
-        return H - n_l / n * H_l - n_r / n * H_r
+    H = entropy(y.mean(axis=0))
+    return H - n_l / n * H_l - n_r / n * H_r
