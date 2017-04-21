@@ -2,13 +2,14 @@ import numpy as np
 import uuid
 import graphviz as gv
 
+from indi.exceptions.modelbuilding import HyperParameterException
 from indi.supervised.trees.nodes import Leaf, Internal
 
 from .util import information_gain
 
 
 class ClassificationTree(object):
-    def __init__(self, max_depth, n_min_leaf, n_trials):
+    def __init__(self, max_depth=None, n_min_leaf=1, n_trials=None):
         self.max_depth = max_depth
         self.n_min_leaf = n_min_leaf
         self.n_trials = n_trials
@@ -29,12 +30,25 @@ class ClassificationTree(object):
                 best_category = X[feature]
         return best_category, best_info_gain
 
-    def _find_split_parameters(self, X, Y, n_min_leaf, n_trials):
-        best_gain = float('-inf')
-        best_dimension = -1
-        best_threshold = None
+    def _find_split_parameters(self, X, Y, n_min_leaf=None, n_trials=None):
 
-        for dim in range(X.shape[1]):
+        if n_min_leaf is not None and n_min_leaf >= Y.shape[0]:
+            return None
+
+        candidate_indices = None
+        if n_trials is not None:
+            if n_trials > X.shape[1]:
+                raise HyperParameterException('n_trials should be less than number of features')
+            else:
+                candidate_indices = np.random.choice(X.shape[1], size=n_trials, replace=False)
+
+        best_gain = float('-inf')
+        best_dimension = None
+        best_threshold = None
+        if candidate_indices is None:
+            candidate_indices = range(X.shape[1])
+
+        for dim in candidate_indices:
             feature = X[:, dim]
             threshold, info_grain = self._find_current_best_feature(feature, Y)
             if info_grain >= best_gain:
@@ -48,19 +62,22 @@ class ClassificationTree(object):
             return best_dimension, best_threshold
 
     def fit(self, X, y):
-        self._fit_training_data(X, y)
+        self._fit_training_data(X, y,
+                                max_depth=self.max_depth,
+                                n_min_leaf=self.n_min_leaf,
+                                n_trials=self.n_trials)
 
-    def _fit_training_data(self, X, y):
+    def _fit_training_data(self, X, y, max_depth=None, n_min_leaf=None, n_trials=None):
         if np.all(y == y[0]):
             return Leaf(y, id=uuid.uuid4())
 
-        if self.max_depth <= 0:
+        if max_depth is not None and max_depth <= 0:
             return Leaf(y, id=uuid.uuid4())
 
         split_parameters = self._find_split_parameters(X,
                                                        y,
-                                                       n_min_leaf=self.n_min_leaf,
-                                                       n_trials=self.n_trials)
+                                                       n_min_leaf=n_min_leaf,
+                                                       n_trials=n_trials)
         if split_parameters is None:
             return Leaf(y, id=uuid.uuid4())
 
@@ -68,14 +85,15 @@ class ClassificationTree(object):
         mask_left = X[:, split_dim] <= split_threshold
         mask_right = np.logical_not(mask_left)
 
-        self.max_depth = self.max_depth - 1
         left_child = self._fit_training_data(
             X[mask_left],
-            y[mask_left])
+            y[mask_left],
+            max_depth=max_depth - 1 if max_depth is not None else None)
 
         right_child = self._fit_training_data(
             X[mask_right],
-            y[mask_right])
+            y[mask_right],
+            max_depth=max_depth - 1 if max_depth is not None else None)
 
         description = 'feature:[{}] <= {}'.format(split_dim, split_threshold)
         self._root = Internal(
