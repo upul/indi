@@ -1,33 +1,34 @@
 import numpy as np
 import uuid
 import graphviz as gv
+import copy
 
 from indi.exceptions.modelbuilding import HyperParameterException
 from indi.supervised.trees.nodes import Leaf, Internal
-
-from .util import information_gain
+from indi.supervised.trees.util import information_gain
 
 
 class ClassificationTree(object):
-    def __init__(self, max_depth=None, n_min_leaf=1, n_trials=None):
+    def __init__(self, max_depth=None, n_min_leaf=2, n_trials=None):
         self.max_depth = max_depth
         self.n_min_leaf = n_min_leaf
         self.n_trials = n_trials
         self._root = None
+        self._n_classes = None
 
     def _find_current_best_feature(self, X, response):
         unique_features = np.unique(X)
         best_info_gain = float('-inf')
         best_category = None
         for feature in range(unique_features.shape[0]):
-            less_than_or_eq_indices = np.where(X <= X[feature])[0]
-            greater_than_indices = np.where(X > X[feature])[0]
+            less_than_or_eq_indices = np.where(X <= unique_features[feature])[0]
+            greater_than_indices = np.where(X > unique_features[feature])[0]
             info_gain = information_gain(response,
                                          response[less_than_or_eq_indices],
                                          response[greater_than_indices])
             if info_gain > best_info_gain:
                 best_info_gain = info_gain
-                best_category = X[feature]
+                best_category = unique_features[feature]
         return best_category, best_info_gain
 
     def _find_split_parameters(self, X, Y, n_min_leaf=None, n_trials=None):
@@ -62,24 +63,26 @@ class ClassificationTree(object):
             return best_dimension, best_threshold
 
     def fit(self, X, y):
+        self._n_classes = np.unique(y).shape[0]
         self._fit_training_data(X, y,
                                 max_depth=self.max_depth,
                                 n_min_leaf=self.n_min_leaf,
                                 n_trials=self.n_trials)
 
     def _fit_training_data(self, X, y, max_depth=None, n_min_leaf=None, n_trials=None):
+        # print(y)
         if np.all(y == y[0]):
-            return Leaf(y, id=uuid.uuid4())
+            return Leaf(y, self._n_classes, id=uuid.uuid4())
 
         if max_depth is not None and max_depth <= 0:
-            return Leaf(y, id=uuid.uuid4())
+            return Leaf(y, self._n_classes, id=uuid.uuid4())
 
         split_parameters = self._find_split_parameters(X,
                                                        y,
                                                        n_min_leaf=n_min_leaf,
                                                        n_trials=n_trials)
         if split_parameters is None:
-            return Leaf(y, id=uuid.uuid4())
+            return Leaf(y, self._n_classes, id=uuid.uuid4())
 
         split_dim, split_threshold = split_parameters
         mask_left = X[:, split_dim] <= split_threshold
@@ -108,20 +111,30 @@ class ClassificationTree(object):
     def predict(self, X):
         y_predict = np.zeros(X.shape[0])
         for i in range(X.shape[0]):
-            pointer = self._root
+            pointer = copy.copy(self._root);
             y_predict[i] = self._predict_data_points(X[i, :], pointer)
         return y_predict
 
-    def _predict_data_points(self, X, node):
+    def predict_probability(self, X):
+        y_predict = np.zeros((X.shape[0], self._n_classes))
+        for i in range(X.shape[0]):
+            pointer = copy.copy(self._root);
+            y_predict[i,] = self._predict_data_points(X[i, :], pointer, emit_probability=True)
+        return y_predict
+
+    def _predict_data_points(self, X, node, emit_probability=False):
         if type(node) is Leaf:
-            return node.predict()
+            if emit_probability:
+                return node.predict_probability()
+            else:
+                return node.predict()
         else:
             dim = node.dim
             feature = X[dim]
             if feature <= node.threshold:
-                return self._predict_data_points(X, node.left_child)
+                return self._predict_data_points(X, node.left_child, emit_probability)
             else:
-                return self._predict_data_points(X, node.right_child)
+                return self._predict_data_points(X, node.right_child, emit_probability)
 
     def visualize(self, file_name, file_format='png'):
         queue = [self._root]

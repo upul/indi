@@ -30,21 +30,24 @@ def test_leaf_node_predict():
     output = leaf.predict_probability()
     npt.assert_array_equal(output, np.array([0.0, 0.6, 0.2, 0.2]))
 
-    # X = np.array([[1, 1], [2, 1], [4, 1], [5, 1], [3, 10]])
-    # y = np.array(([0, 0, 1, 1, 2]))
-    # t = ClassificationTree(max_depth=100, n_min_leaf=None, n_trials=None)
-    # t.fit(X, y)
-    # t.visualize('./img.png')
-    # print('O')
+    X = np.array([[1, 1], [2, 1], [4, 1], [5, 1], [3, 10]])
+    y = np.array(([0, 0, 1, 1, 2]))
+    t = ClassificationTree(max_depth=100, n_min_leaf=None, n_trials=None)
+    t.fit(X, y)
+    t.predict_probability(np.array([[1, 1]]))
+    t.visualize('./img.png')
+    print('O')
 
     from sklearn.datasets.samples_generator import make_blobs
     import matplotlib.pylab as plt
     import seaborn as sbs;
-    n_samples = 2500
-    X, y = make_blobs(n_samples=n_samples, centers=2, n_features=2,
-                      cluster_std=0.65, random_state=1788)
+    n_samples = 2000
+    # X, y = make_blobs(n_samples=n_samples, centers=2, n_features=2,
+    #                   cluster_std=0.62, random_state=0)
+    X, y = make_blobs(n_samples=300, centers=4,
+                      random_state=0, cluster_std=1.0)
 
-    cls = ClassificationTree()
+    cls = ClassificationTree(max_depth=10, n_min_leaf=2)
     cls.fit(X, y)
     cls.visualize('./test.png')
 

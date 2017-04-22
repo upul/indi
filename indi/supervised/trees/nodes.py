@@ -20,16 +20,17 @@ class Node(object):
 
 
 class Leaf(Node):
-    def __init__(self, values, id=None, description=None):
+    def __init__(self, values, n_classes=None, id=None, description=None):
         Node.__init__(self, id, description)
         self.values = values
+        self._n_classes = n_classes
 
     def predict(self):
         probs = self.predict_probability()
         return np.argmax(probs)
 
     def predict_probability(self):
-        return np.bincount(self.values) / self.values.shape[0]
+        return np.bincount(self.values, minlength=self._n_classes) / self.values.shape[0]
 
     def get_description(self):
         probs = self.predict_probability()
