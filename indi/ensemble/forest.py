@@ -21,7 +21,7 @@ class RandomForestClassifier(object):
 
     def _bootstrap(self, X, Y):
         while True:
-            sample = np.random.choice(X.shape[0], size=175, replace=True)
+            sample = np.random.choice(X.shape[0], size=5000, replace=True)
             if np.unique(Y[sample]).shape[0] > 1:
                 break
         return X[sample, :], Y[sample]

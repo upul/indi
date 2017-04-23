@@ -14,7 +14,7 @@ def test_random_forest_classifier():
     from sklearn.datasets.samples_generator import make_blobs
     import matplotlib.pylab as plt
     import seaborn as sbs;
-    n_samples = 300
+    n_samples = 10000
     X, y = make_blobs(n_samples=n_samples, centers=2, n_features=2,
                       cluster_std=0.62, random_state=125)
     #X, y = make_blobs(n_samples=300, centers=4,
