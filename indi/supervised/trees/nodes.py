@@ -1,9 +1,6 @@
-import numpy as np
-
-
 class Node(object):
-    def __init__(self, id=None, description=None):
-        self.id = id
+    def __init__(self, node_id=None, description=None):
+        self.id = node_id
         self.description = description
 
     def set_id(self, id):
@@ -20,30 +17,17 @@ class Node(object):
 
 
 class Leaf(Node):
-    def __init__(self, values, n_classes=None, id=None, description=None):
-        Node.__init__(self, id, description)
+    def __init__(self, values, n_classes=None, node_id=None, description=None):
+        Node.__init__(self, node_id, description)
         self.values = values
-        self._n_classes = n_classes
 
-    def predict(self):
-        probs = self.predict_probability()
-        return np.argmax(probs)
-
-    def predict_probability(self):
-        return np.bincount(self.values, minlength=self._n_classes) / self.values.shape[0]
-
-    def get_description(self):
-        probs = self.predict_probability()
-        desc = ''
-        for i in range(probs.shape[0]):
-            desc += 'class: {}  prob: {} \n'.format(i, probs[i])
-        desc += 'samples: {}\n'.format(self.values.shape[0])
-        return desc
+    def get_values(self):
+        return self.values
 
 
 class Internal(Node):
-    def __init__(self, dim, threshold, left_child, right_child, id=None, description=None):
-        Node.__init__(self, id, description)
+    def __init__(self, dim, threshold, left_child, right_child, node_id=None, description=None):
+        Node.__init__(self, node_id, description)
         self.dim = dim
         self.threshold = threshold
         self.left_child = left_child

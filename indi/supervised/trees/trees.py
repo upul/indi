@@ -6,6 +6,8 @@ import copy
 from indi.exceptions.modelbuilding import HyperParameterException
 from indi.supervised.trees.nodes import Leaf, Internal
 from indi.supervised.trees.util import information_gain
+from indi.supervised.trees.util import predict_node_probability
+from indi.supervised.trees.util import predict_node_label
 
 
 class ClassificationTree(object):
@@ -70,19 +72,21 @@ class ClassificationTree(object):
                                 n_trials=self.n_trials)
 
     def _fit_training_data(self, X, y, max_depth=None, n_min_leaf=None, n_trials=None):
-        # print(y)
         if np.all(y == y[0]):
-            return Leaf(y, self._n_classes, id=uuid.uuid4())
+            return Leaf(y, self._n_classes, node_id=uuid.uuid4(),
+                        description=self.build_node_description(y))
 
         if max_depth is not None and max_depth <= 0:
-            return Leaf(y, self._n_classes, id=uuid.uuid4())
+            return Leaf(y, self._n_classes, node_id=uuid.uuid4(),
+                        description=self.build_node_description(y))
 
         split_parameters = self._find_split_parameters(X,
                                                        y,
                                                        n_min_leaf=n_min_leaf,
                                                        n_trials=n_trials)
         if split_parameters is None:
-            return Leaf(y, self._n_classes, id=uuid.uuid4())
+            return Leaf(y, self._n_classes, node_id=uuid.uuid4(),
+                        description=self.build_node_description(y))
 
         split_dim, split_threshold = split_parameters
         mask_left = X[:, split_dim] <= split_threshold
@@ -104,7 +108,7 @@ class ClassificationTree(object):
             threshold=split_threshold,
             left_child=left_child,
             right_child=right_child,
-            id=uuid.uuid4(),
+            node_id=uuid.uuid4(),
             description=description)
         return self._root
 
@@ -125,9 +129,9 @@ class ClassificationTree(object):
     def _predict_data_points(self, X, node, emit_probability=False):
         if type(node) is Leaf:
             if emit_probability:
-                return node.predict_probability()
+                return predict_node_probability(node.get_values(), self._n_classes)
             else:
-                return node.predict()
+                return predict_node_label(node.get_values(), self._n_classes)
         else:
             dim = node.dim
             feature = X[dim]
@@ -147,7 +151,8 @@ class ClassificationTree(object):
             if type(vertex) is Internal:
                 queue.append(vertex.right_child)
                 queue.append(vertex.left_child)
-                children[vertex.get_id()] = (vertex.right_child.get_id(), vertex.left_child.get_id())
+                children[vertex.get_id()] = (vertex.right_child.get_id(),
+                                             vertex.left_child.get_id())
 
         for key, val in children.items():
             true_flag = True
@@ -158,3 +163,11 @@ class ClassificationTree(object):
                 else:
                     graph.edge(key, child, 'False')
         graph.render(file_name)
+
+    def build_node_description(self, values):
+        probabilities = predict_node_probability(values, self._n_classes)
+        desc = ''
+        for i in range(probabilities.shape[0]):
+            desc += 'class: {}  prob: {} \n'.format(i, probabilities[i])
+        desc += 'samples: {}\n'.format(values.shape[0])
+        return desc

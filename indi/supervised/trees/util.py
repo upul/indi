@@ -22,3 +22,12 @@ def information_gain(y, y_left, y_right):
 
     H = entropy(y.mean(axis=0))
     return H - n_l / n * H_l - n_r / n * H_r
+
+
+def predict_node_label(values, num_distinct_classes):
+    probabilities = predict_node_probability(values, num_distinct_classes)
+    return np.argmax(probabilities)
+
+
+def predict_node_probability(values, num_distinct_classes):
+    return np.bincount(values, minlength=num_distinct_classes) / values.shape[0]
