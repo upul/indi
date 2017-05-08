@@ -19,13 +19,6 @@ class RandomForestClassifier(object):
             clf.fit(X_bootstrap, y_bootstrap)
             self.trees.append(clf)
 
-    def _bootstrap(self, X, Y):
-        while True:
-            sample = np.random.choice(X.shape[0], size=5000, replace=True)
-            if np.unique(Y[sample]).shape[0] > 1:
-                break
-        return X[sample, :], Y[sample]
-
     def predict_probability(self, X):
         y_predicts = []
         for tree in self.trees:
@@ -36,3 +29,9 @@ class RandomForestClassifier(object):
     def predict(self, X):
         probabilities = self.predict_probability(X)
         return np.argmax(probabilities, axis=1)
+
+    @staticmethod
+    def _bootstrap(X, Y):
+        num_samples = X.shape[0]
+        sample = np.random.choice(X.shape[0], size=int(num_samples * 0.65), replace=True)
+        return X[sample, :], Y[sample]
