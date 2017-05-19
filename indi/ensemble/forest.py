@@ -13,8 +13,8 @@ class RandomForestClassifier(object):
     def fit(self, X, y):
         for i in range(self.number_of_trees):
             clf = ClassificationTree(max_depth=self.max_depth,
-                                     n_min_leaf=self.n_min_leaf,
-                                     n_trials=self.n_trials)
+                           n_min_leaf=self.n_min_leaf,
+                           n_trials=self.n_trials)
             X_bootstrap, y_bootstrap = self._bootstrap(X, y)
             clf.fit(X_bootstrap, y_bootstrap)
             self.trees.append(clf)

@@ -2,6 +2,7 @@ import numpy as np
 import uuid
 import graphviz as gv
 import copy
+from abc import ABCMeta, abstractmethod
 
 from indi.exceptions.modelbuilding import HyperParameterException
 from indi.supervised.trees.nodes import Leaf, Internal
@@ -10,7 +11,7 @@ from indi.supervised.trees.util import predict_node_probability
 from indi.supervised.trees.util import predict_node_label
 
 
-class ClassificationTree(object):
+class BaseTree(metaclass=ABCMeta):
     def __init__(self, max_depth=None, n_min_leaf=2, n_trials=None):
         self.max_depth = max_depth
         self.n_min_leaf = n_min_leaf
@@ -30,13 +31,6 @@ class ClassificationTree(object):
         for i in range(X.shape[0]):
             pointer = copy.copy(self.root_node);
             y_predict[i] = self._predict_single_data_point(X[i, :], pointer)
-        return y_predict
-
-    def predict_probability(self, X):
-        y_predict = np.zeros((X.shape[0], self.num_classes))
-        for i in range(X.shape[0]):
-            pointer = copy.copy(self.root_node);
-            y_predict[i,] = self._predict_single_data_point(X[i, :], pointer, emit_probability=True)
         return y_predict
 
     def visualize(self, file_name, file_format='png'):
@@ -133,7 +127,7 @@ class ClassificationTree(object):
 
         for dim in candidate_indices:
             feature = X[:, dim]
-            threshold, info_grain = self._current_best_feature(feature, Y)
+            threshold, info_grain = self._find_best_split_threshold(feature, Y)
             if info_grain >= best_gain:
                 best_dimension = dim
                 best_gain = info_grain
@@ -143,6 +137,41 @@ class ClassificationTree(object):
             return None
         else:
             return best_dimension, best_threshold
+
+    @abstractmethod
+    def _find_best_split_threshold(self, feature_vector, response):
+        pass
+
+    @abstractmethod
+    def _predict_single_data_point(self, X, node, emit_probability=False):
+        pass
+
+
+class ClassificationTree(BaseTree):
+    def __init__(self, max_depth=None, n_min_leaf=2, n_trials=None):
+        super().__init__(max_depth, n_min_leaf, n_trials)
+
+    def predict_probability(self, X):
+        y_predict = np.zeros((X.shape[0], self.num_classes))
+        for i in range(X.shape[0]):
+            pointer = copy.copy(self.root_node);
+            y_predict[i,] = self._predict_single_data_point(X[i, :], pointer, emit_probability=True)
+        return y_predict
+
+    def _find_best_split_threshold(self, feature_vector, response):
+        unique_features = np.unique(feature_vector)
+        best_info_gain = float('-inf')
+        best_category = None
+        for feature in range(unique_features.shape[0]):
+            less_than_or_eq_indices = np.where(feature_vector <= unique_features[feature])[0]
+            greater_than_indices = np.where(feature_vector > unique_features[feature])[0]
+            info_gain = information_gain(response,
+                                         response[less_than_or_eq_indices],
+                                         response[greater_than_indices])
+            if info_gain > best_info_gain:
+                best_info_gain = info_gain
+                best_category = unique_features[feature]
+        return best_category, best_info_gain
 
     def _predict_single_data_point(self, X, node, emit_probability=False):
         if type(node) is Leaf:
@@ -158,18 +187,13 @@ class ClassificationTree(object):
             else:
                 return self._predict_single_data_point(X, node.right_child, emit_probability)
 
-    @staticmethod
-    def _current_best_feature(feature_vector, response):
-        unique_features = np.unique(feature_vector)
-        best_info_gain = float('-inf')
-        best_category = None
-        for feature in range(unique_features.shape[0]):
-            less_than_or_eq_indices = np.where(feature_vector <= unique_features[feature])[0]
-            greater_than_indices = np.where(feature_vector > unique_features[feature])[0]
-            info_gain = information_gain(response,
-                                         response[less_than_or_eq_indices],
-                                         response[greater_than_indices])
-            if info_gain > best_info_gain:
-                best_info_gain = info_gain
-                best_category = unique_features[feature]
-        return best_category, best_info_gain
+
+class RegressionTree(BaseTree):
+    def __init__(self, max_depth=None, n_min_leaf=2, n_trials=None):
+        super().__init__(max_depth, n_min_leaf, n_trials)
+
+    def _find_best_split_threshold(self, feature_vector, response):
+        pass
+
+    def _predict_single_data_point(self, X, node, emit_probability=False):
+        pass
